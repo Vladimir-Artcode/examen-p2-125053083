@@ -1,0 +1,49 @@
+services:
+  hadoop:
+    build: ./hadoop
+    container_name: hadoop
+    volumes:
+      - ./ventas_125053083.csv:/data/input/ventas_125053083.csv:ro
+      - ./mapreduce:/data/mapreduce
+      - ssh_keys:/home/usuario/.ssh
+    networks:
+      - red_bigdata
+
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - red_bigdata
+
+  api:
+    build: ./api
+    container_name: api
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ssh_keys:/root/.ssh
+      - ./mapreduce:/data/mapreduce
+      - ./scripts:/data/scripts
+    depends_on:
+      - db
+    networks:
+      - red_bigdata
+
+volumes:
+  pgdata:
+  ssh_keys:
+
+networks:
+  red_bigdata:
+    driver: bridge

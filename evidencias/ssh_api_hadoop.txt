@@ -1,0 +1,3 @@
+Warning: Permanently added 'hadoop' (ED25519) to the list of known hosts.
+fa05bd37bef3
+usuario
